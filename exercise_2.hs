@@ -1,9 +1,11 @@
+{- standard recursive way -}
 fib :: Int -> Int
 fib n
   | n == 1 = 1
   | n == 2 = 1
   | n > 2 = fib (n-1) + fib (n-2)
 
+{- using pattern matching -}
 fib' :: Int -> [Int]
 fib' n = fibList n 0 []
 
@@ -21,15 +23,19 @@ fibList n k xs
   tail fibs                   : [1, ?
   zipWith (+) fibs (tail fibs): [2, ?
 -}
+
 fibs :: [Integer]
 fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 
+{- take the first n fib numbers}
 fibs' :: Int -> [Integer]
 fibs' n = take n (fibs)
 
+{- take up to and not including a given number  -}
 fibsTakeWhile :: Integer -> [Integer]
 fibsTakeWhile n = takeWhile (<n) fibs
 
+{- calculate the sum of the even fib numbers up to a given number k -}
 main = do
   print ("Enter an upper limit for the fibonacci numbers")
   input <- getLine
