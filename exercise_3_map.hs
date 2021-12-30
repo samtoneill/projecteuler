@@ -19,25 +19,20 @@ lazyPrimes = 2: 3: calcNextPrimes (tail lazyPrimes) [5, 7 .. ]
       smallerSquareP ++ calcNextPrimes ps [c | c <- biggerSquareP, rem c p /= 0]
 
 
-{-primeFactors -}
+{-primeFactors using infnite list and map filter zipWith etc...
+
+Note that this is slow because we are dividing k by all primes and then
+comparing every result to check for an integer.
+
+In recursion we do the division once per prime and store the result
+-}
+
 
 primeFactors :: Integer -> [Integer]
-primeFactors k = calcNextFactor lazyPrimes k []
-  where calcNextFactor :: [Integer] -> Integer -> [Integer] -> [Integer]
-        calcNextFactor (p:ps) 1 x = x
-        calcNextFactor (p:ps) k x
-          | k > 1 =
-            if k `mod` p == 0 then
-              calcNextFactor ps (div k p) (x ++ [p])
-            else
-              calcNextFactor ps k x
-          | otherwise = []
+primeFactors k = map fst $ filter (\(x,y) -> floor y == ceiling y)
+                $ takeWhile (\(x,y) -> y >= 1) x
+             where x = zip lazyPrimes $ zipWith (/) (map fromIntegral $ cycle [k]) (map fromIntegral lazyPrimes)
 
 main = do
-  print ("Enter a positive number for prime factorisation")
-  input <- getLine
-  let n = read input :: Integer
-  print (take 10 lazyPrimes)
-  let xs = primeFactors n
-  print ("The prime factors are: " ++ show xs)
-  print ("The largest prime factor is " ++ show (last xs))
+  let x = primeFactors 100
+  print (x)
