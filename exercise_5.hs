@@ -1,14 +1,11 @@
 {-
-The prime factors of 13195 are 5, 7, 13 and 29.
-What is the largest prime factor of the number 600851475143 ?
+
+2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+
 -}
 
 import Data.List
-
-{-
-   https://stackoverflow.com/questions/10972429/lazy-evaluation-of-terms-in-an-infinite-list-in-haskell
-   it would be nice to add a trace to track the lazy evaluation
--}
 
 {- https://stackoverflow.com/questions/3596502/lazy-list-of-prime-numbers -}
 lazyPrimes :: [Integer]
@@ -20,7 +17,6 @@ lazyPrimes = 2: 3: calcNextPrimes (tail lazyPrimes) [5, 7 .. ]
 
 
 {-primeFactors
-
 
   Note originally line 29 read:
     if k `mod` p == 0 then
@@ -38,12 +34,13 @@ lazyPrimes = 2: 3: calcNextPrimes (tail lazyPrimes) [5, 7 .. ]
 
     do not discard the prime until it no longer is divisible
 
-    then use nub to remove duplicates
+    Note that here we are doing factorisation so we do not remove duplicates
+    with nub.
 
-   -}
+-}
 
-primeFactors :: Integer -> [Integer]
-primeFactors k = nub $ calcNextFactor lazyPrimes k []
+primeFactorisation :: Integer -> [Integer]
+primeFactorisation k = calcNextFactor lazyPrimes k []
   where calcNextFactor :: [Integer] -> Integer -> [Integer] -> [Integer]
         calcNextFactor (p:ps) 1 x = x
         calcNextFactor (p:ps) k x
@@ -54,11 +51,26 @@ primeFactors k = nub $ calcNextFactor lazyPrimes k []
               calcNextFactor ps k x
           | otherwise = []
 
+primeFacList :: [Integer] -> [[Integer]]
+primeFacList = foldl (\acc x -> (primeFactorisation x):acc) []
+
+intersect' :: [Integer] -> [Integer] -> [Integer]
+intersect' [] _ = []
+intersect' _ [] = []
+intersect' xs ys = filter (\x -> x `elem` xs) ys
+
+
+{- need to find the common terms, call primeFacList with [a,b] and then get lists back -}
+
+gcd' :: Integer -> Integer -> Integer
+gcd' a b = (product . nub) $ intersect' x y
+  where (x:y:ys) = primeFacList [a,b]
+
+lcm' :: Integer -> Integer -> Integer
+lcm' a b = a*b `div` (gcd' a b)
+
 main = do
-  print ("Enter a positive number for prime factorisation")
-  input <- getLine
-  let n = read input :: Integer
-  print (take 10 lazyPrimes)
-  let xs = primeFactors n
-  print ("The prime factors are: " ++ show xs)
-  print ("The largest prime factor is " ++ show (last xs))
+
+  print(gcd 48 180)
+  print(lcm 48 180)
+  print(foldl (\acc x -> lcm' acc x) 1 [1..10])
